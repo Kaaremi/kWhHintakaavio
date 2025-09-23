@@ -46,25 +46,58 @@
               backgroundColor: "#4CAF50"
             }]
           },
-          options: {
-            responsive: true,
-            scales: {
-              y: {
-                beginAtZero: true,
-                title: {
-                  display: true,
-                  text: "snt/kWh"
-                }
-              },
-              x: {
-                title: {
-                  display: true,
-                  text: "Tunti (EEST)"
-                }
-              }
-            }
-          }
-        });
+options: {
+  responsive: true,
+  scales: {
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: "snt/kWh",
+        font: {
+          size: 24 // ← Increase Y-axis title font size
+        }
+      },
+      ticks: {
+        font: {
+          size: 18 // ← Increase Y-axis tick labels
+        }
+      }
+    },
+    x: {
+      title: {
+        display: true,
+        text: "Tunti (EEST)",
+        font: {
+          size: 24 // ← Increase X-axis title font size
+        }
+      },
+      ticks: {
+        font: {
+          size: 18 // ← Increase X-axis tick labels
+        }
+      }
+    }
+  },
+  plugins: {
+    legend: {
+      labels: {
+        font: {
+          size: 20 // ← Increase legend font size
+        }
+      }
+    },
+    tooltip: {
+      bodyFont: {
+        size: 18 // ← Tooltip font size
+      },
+      titleFont: {
+        size: 20 // ← Tooltip title font size
+      }
+    }
+  }
+}
+
       } catch (error) {
         document.body.innerHTML += `<p style="color:red;">Virhe ladattaessa dataa: ${error.message}</p>`;
         console.error("Virhe:", error);
@@ -75,4 +108,5 @@
   </script>
 </body>
 </html>
+
 
