@@ -2,7 +2,7 @@
 <html lang="fi">
 <head>
   <meta charset="UTF-8">
-  <title>Sähkön hinnat tunneittain (snt/kWh)</title>
+  <title>Sähkön hintakaavio</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
@@ -10,7 +10,7 @@
   </style>
 </head>
 <body>
-  <canvas id="priceChart" width="10000" height="4000"></canvas>
+  <canvas id="priceChart" width="1000" height="600"></canvas>
 
   <script>
     async function renderChart() {
@@ -46,67 +46,38 @@
               backgroundColor: "#4CAF50"
             }]
           },
-options: {
-  responsive: true,
-  scales: {
-    y: {
-      beginAtZero: true,
-      title: {
-        display: true,
-        text: "snt/kWh",
-        font: {
-          size: 24 // ← Increase Y-axis title font size
-        }
-      },
-      ticks: {
-        font: {
-          size: 18 // ← Increase Y-axis tick labels
-        }
-      }
-    },
-    x: {
-      title: {
-        display: true,
-        text: "Tunti (EEST)",
-        font: {
-          size: 24 // ← Increase X-axis title font size
-        }
-      },
-      ticks: {
-        font: {
-          size: 18 // ← Increase X-axis tick labels
-        }
-      }
-    }
-  },
-  plugins: {
-    legend: {
-      labels: {
-        font: {
-          size: 20 // ← Increase legend font size
-        }
-      }
-    },
-    tooltip: {
-      bodyFont: {
-        size: 18 // ← Tooltip font size
-      },
-      titleFont: {
-        size: 20 // ← Tooltip title font size
-      }
-    }
-  }
-}
-
-      } catch (error) {
-        document.body.innerHTML += `<p style="color:red;">Virhe ladattaessa dataa: ${error.message}</p>`;
-        console.error("Virhe:", error);
-      }
-    }
-
-    renderChart();
-  </script>
-</body>
-</html>
-
-
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "snt/kWh",
+                  font: {
+                    size: 24
+                  }
+                },
+                ticks: {
+                  font: {
+                    size: 18
+                  }
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Tunti (EEST)",
+                  font: {
+                    size: 24
+                  }
+                },
+                ticks: {
+                  font: {
+                    size: 18
+                  }
+                }
+              }
+            },
+            plugins: {
+              legend: {
