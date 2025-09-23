@@ -81,3 +81,30 @@
             },
             plugins: {
               legend: {
+                labels: {
+                  font: {
+                    size: 20
+                  }
+                }
+              },
+              tooltip: {
+                bodyFont: {
+                  size: 18
+                },
+                titleFont: {
+                  size: 20
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        document.body.innerHTML += `<p style="color:red;">Virhe ladattaessa dataa: ${error.message}</p>`;
+        console.error("Virhe:", error);
+      }
+    }
+
+    renderChart();
+  </script>
+</body>
+</html>
