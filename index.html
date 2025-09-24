@@ -27,22 +27,27 @@
         const colors = [];
 
         const now = new Date();
-        const nextHour = new Date(now);
-        nextHour.setMinutes(0, 0, 0);
-        nextHour.setHours(now.getHours() + 1);
+        const todayDate = now.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
         data.prices.forEach(entry => {
           const entryDate = new Date(entry.startDate);
+          const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
-          if (entryDate >= nextHour) {
+          if (entryLocalDate === todayDate || entryLocalDate === tomorrowDate) {
             const localTime = entryDate.toLocaleTimeString("fi-FI", {
               hour: "2-digit",
               minute: "2-digit",
               timeZone: "Europe/Helsinki"
             });
 
+            const labelPrefix = entryLocalDate === todayDate ? "Tänään " : "Huomenna ";
+            labels.push(labelPrefix + localTime);
+
             const price = entry.price;
-            labels.push(localTime);
             values.push(price.toFixed(2));
 
             if (price < 5) {
@@ -84,7 +89,7 @@
               x: {
                 title: {
                   display: true,
-                  text: "Tunti (EEST)",
+                  text: "Tunnit (EEST)",
                   font: { size: 16 }
                 },
                 ticks: {
@@ -107,11 +112,4 @@
         });
       } catch (error) {
         document.body.innerHTML += `<p style="color:red;">Virhe ladattaessa dataa: ${error.message}</p>`;
-        console.error("Virhe:", error);
-      }
-    }
-
-    renderChart();
-  </script>
-</body>
-</html>
+        console.error("Virhe:",
