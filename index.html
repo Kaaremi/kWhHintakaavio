@@ -1,29 +1,117 @@
-const now = new Date();
-const nextHour = new Date(now);
-nextHour.setMinutes(0, 0, 0);
-nextHour.setHours(now.getHours() + 1);
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <title>Sähkön hintakaavio</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 10px; }
+    canvas { display: block; margin: auto; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+  <canvas id="priceChart" width="480" height="480"></canvas>
 
-data.prices.forEach(entry => {
-  const entryDate = new Date(entry.startDate);
-  const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-  const entryLocalTime = new Date(entry.startDate).toLocaleTimeString("fi-FI", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Helsinki"
-  });
+  <script>
+    async function renderChart() {
+      try {
+        const response = await fetch("https://api.allorigins.win/raw?url=https://api.porssisahko.net/v1/latest-prices.json");
+        const data = await response.json();
 
-  // Only include entries from the next hour onward
-  if (entryDate >= nextHour) {
-    const price = entry.price;
-    labels.push(entryLocalTime);
-    values.push(price.toFixed(2));
+        if (!data || !Array.isArray(data.prices)) {
+          throw new Error("Hintadataa ei löytynyt.");
+        }
 
-    if (price < 5) {
-      colors.push("green");
-    } else if (price <= 10) {
-      colors.push("yellow");
-    } else {
-      colors.push("red");
+        const labels = [];
+        const values = [];
+        const colors = [];
+
+        const now = new Date();
+        const nextHour = new Date(now);
+        nextHour.setMinutes(0, 0, 0);
+        nextHour.setHours(now.getHours() + 1);
+
+        data.prices.forEach(entry => {
+          const entryDate = new Date(entry.startDate);
+
+          if (entryDate >= nextHour) {
+            const localTime = entryDate.toLocaleTimeString("fi-FI", {
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "Europe/Helsinki"
+            });
+
+            const price = entry.price;
+            labels.push(localTime);
+            values.push(price.toFixed(2));
+
+            if (price < 5) {
+              colors.push("green");
+            } else if (price <= 10) {
+              colors.push("yellow");
+            } else {
+              colors.push("red");
+            }
+          }
+        });
+
+        const ctx = document.getElementById("priceChart").getContext("2d");
+        new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Sähkön hinta (snt/kWh)",
+              data: values,
+              backgroundColor: colors
+            }]
+          },
+          options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: "snt/kWh",
+                  font: { size: 16 }
+                },
+                ticks: {
+                  font: { size: 12 }
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: "Tunti (EEST)",
+                  font: { size: 16 }
+                },
+                ticks: {
+                  font: { size: 12 }
+                }
+              }
+            },
+            plugins: {
+              legend: {
+                labels: {
+                  font: { size: 14 }
+                }
+              },
+              tooltip: {
+                bodyFont: { size: 14 },
+                titleFont: { size: 16 }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        document.body.innerHTML += `<p style="color:red;">Virhe ladattaessa dataa: ${error.message}</p>`;
+        console.error("Virhe:", error);
+      }
     }
-  }
-});
+
+    renderChart();
+  </script>
+</body>
+</html>
