@@ -26,23 +26,30 @@
         const values = [];
         const colors = [];
 
+        const today = new Date().toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+
         data.prices.forEach(entry => {
-          const localTime = new Date(entry.startDate).toLocaleTimeString("fi-FI", {
-            hour: "2-digit",
-            minute: "2-digit",
-            timeZone: "Europe/Helsinki"
-          });
+          const entryDate = new Date(entry.startDate);
+          const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
-          const price = entry.price;
-          labels.push(localTime);
-          values.push(price.toFixed(2));
+          if (entryLocalDate === today) {
+            const localTime = entryDate.toLocaleTimeString("fi-FI", {
+              hour: "2-digit",
+              minute: "2-digit",
+              timeZone: "Europe/Helsinki"
+            });
 
-          if (price < 5) {
-            colors.push("green");
-          } else if (price <= 10) {
-            colors.push("yellow");
-          } else {
-            colors.push("red");
+            const price = entry.price;
+            labels.push(localTime);
+            values.push(price.toFixed(2));
+
+            if (price < 5) {
+              colors.push("green");
+            } else if (price <= 10) {
+              colors.push("yellow");
+            } else {
+              colors.push("red");
+            }
           }
         });
 
