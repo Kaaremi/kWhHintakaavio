@@ -33,31 +33,36 @@
         tomorrow.setDate(now.getDate() + 1);
         const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
-        data.prices.forEach(entry => {
+        // Filter and sort entries by time ascending
+        const filteredEntries = data.prices.filter(entry => {
+          const entryDate = new Date(entry.startDate);
+          const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+          return entryLocalDate === todayDate || entryLocalDate === tomorrowDate;
+        }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+        filteredEntries.forEach(entry => {
           const entryDate = new Date(entry.startDate);
           const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
-          if (entryLocalDate === todayDate || entryLocalDate === tomorrowDate) {
-            const localTime = entryDate.toLocaleTimeString("fi-FI", {
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-              timeZone: "Europe/Helsinki"
-            });
+          const localTime = entryDate.toLocaleTimeString("fi-FI", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+            timeZone: "Europe/Helsinki"
+          });
 
-            const labelPrefix = entryLocalDate === todayDate ? "Tänään " : "Huomenna ";
-            labels.push(labelPrefix + localTime);
+          const labelPrefix = entryLocalDate === todayDate ? "Tänään " : "Huomenna ";
+          labels.push(labelPrefix + localTime);
 
-            const price = entry.price;
-            values.push(price.toFixed(2));
+          const price = entry.price;
+          values.push(price.toFixed(2));
 
-            if (price < 5) {
-              colors.push("green");
-            } else if (price <= 10) {
-              colors.push("yellow");
-            } else {
-              colors.push("red");
-            }
+          if (price < 5) {
+            colors.push("green");
+          } else if (price <= 10) {
+            colors.push("yellow");
+          } else {
+            colors.push("red");
           }
         });
 
