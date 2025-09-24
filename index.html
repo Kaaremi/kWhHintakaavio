@@ -47,8 +47,14 @@
         const colors = [];
 
         const now = new Date();
-        const todayDate = now.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+        const currentHour = now.toLocaleTimeString("fi-FI", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "Europe/Helsinki"
+        });
 
+        const todayDate = now.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
         const tomorrow = new Date(now);
         tomorrow.setDate(now.getDate() + 1);
         const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
@@ -107,7 +113,13 @@
               },
               x: {
                 title: { display: false },
-                ticks: { font: { size: 10 } }
+                ticks: {
+                  font: { size: 10 },
+                  color: function(context) {
+                    const label = context.tick.label;
+                    return label.includes("Tänään " + currentHour) ? "red" : "#666";
+                  }
+                }
               }
             },
             plugins: {
