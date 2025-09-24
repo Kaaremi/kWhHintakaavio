@@ -94,7 +94,7 @@
           data: {
             labels: labels,
             datasets: [{
-              label: "Sähkön hinta (snt/kWh)",
+              label: "",
               data: values,
               backgroundColor: colors
             }]
@@ -106,9 +106,7 @@
               y: {
                 beginAtZero: true,
                 title: {
-                  display: true,
-                  text: "snt/kWh",
-                  font: { size: 14 }
+                  display: false
                 },
                 ticks: {
                   font: { size: 10 }
@@ -116,9 +114,7 @@
               },
               x: {
                 title: {
-                  display: true,
-                  text: "Tunnit (EEST)",
-                  font: { size: 14 }
+                  display: false // ❌ Removed "Tunnit (EEST)"
                 },
                 ticks: {
                   font: { size: 10 }
@@ -127,24 +123,13 @@
             },
             plugins: {
               legend: {
+                display: true,
+                position: "top",
                 labels: {
-                  font: { size: 12 }
-                }
-              },
-              tooltip: {
-                bodyFont: { size: 12 },
-                titleFont: { size: 14 }
-              }
-            }
-          }
-        });
-      } catch (error) {
-        document.body.innerHTML += `<p style="color:red;">Virhe ladattaessa dataa: ${error.message}</p>`;
-        console.error("Virhe:", error);
-      }
-    }
-
-    renderChart();
-  </script>
-</body>
-</html>
+                  generateLabels: function(chart) {
+                    return [{
+                      text: "Sähkön hinta (snt/kWh)",
+                      fillStyle: "transparent",
+                      strokeStyle: "transparent",
+                      lineWidth: 0
+                    }];
