@@ -105,20 +105,12 @@
             scales: {
               y: {
                 beginAtZero: true,
-                title: {
-                  display: false
-                },
-                ticks: {
-                  font: { size: 10 }
-                }
+                title: { display: false },
+                ticks: { font: { size: 10 } }
               },
               x: {
-                title: {
-                  display: false // ❌ Removed "Tunnit (EEST)"
-                },
-                ticks: {
-                  font: { size: 10 }
-                }
+                title: { display: false },
+                ticks: { font: { size: 10 } }
               }
             },
             plugins: {
@@ -133,3 +125,24 @@
                       strokeStyle: "transparent",
                       lineWidth: 0
                     }];
+                  },
+                  font: { size: 14 }
+                }
+              },
+              tooltip: {
+                bodyFont: { size: 12 },
+                titleFont: { size: 14 }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        document.body.innerHTML += `<p style="color:red;">Virhe ladattaessa dataa: ${error.message}</p>`;
+        console.error("Virhe:", error);
+      }
+    }
+
+    renderChart();
+  </script>
+</body>
+</html>
