@@ -53,101 +53,27 @@
         const colors = [];
 
         const now = new Date();
-        const todayDate = now.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
         const tomorrow = new Date(now);
         tomorrow.setDate(now.getDate() + 1);
         const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
-        const filteredEntries = data.prices.filter(entry => {
+        const tomorrowEntries = data.prices.filter(entry => {
           const entryDate = new Date(entry.startDate);
           const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-          return entryLocalDate === todayDate || entryLocalDate === tomorrowDate;
+          return entryLocalDate === tomorrowDate;
         }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
-        filteredEntries.forEach(entry => {
+        tomorrowEntries.forEach(entry => {
           const entryDate = new Date(entry.startDate);
-          const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
           const hour = entryDate.toLocaleTimeString("fi-FI", {
             hour: "2-digit",
             hour12: false,
             timeZone: "Europe/Helsinki"
           });
-
           const minutes = entryDate.toLocaleTimeString("fi-FI", {
             minute: "2-digit",
             hour12: false,
             timeZone: "Europe/Helsinki"
           });
 
-          const labelPrefix = entryLocalDate === todayDate ? "T " : "H ";
-          labels.push(labelPrefix + hour + ":" + minutes);
-
-          const price = entry.price;
-          values.push(price.toFixed(2));
-
-          if (price < 5) {
-            colors.push("green");
-          } else if (price <= 10) {
-            colors.push("yellow");
-          } else {
-            colors.push("red");
-          }
-        });
-
-        const canvas = document.getElementById("priceChart");
-        const ctx = canvas.getContext("2d");
-
-        new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: labels,
-            datasets: [{
-              label: "",
-              data: values,
-              backgroundColor: colors
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  font: { size: 20 }
-                }
-              },
-              x: {
-                ticks: {
-                  font: { size: 20 },
-                  callback: function(value, index) {
-                    // Show only full hours (every 4th 15-min interval)
-                    return index % 4 === 0 ? this.getLabelForValue(value).split(":")[0] : "";
-                  },
-                  color: function(context) {
-                    const index = context.index;
-                    const value = parseFloat(values[index]);
-                    return value >= 10 ? "red" : "#666";
-                  }
-                }
-              }
-            },
-            plugins: {
-              legend: {
-                display: false
-              }
-            }
-          }
-        });
-
-      } catch (error) {
-        console.error("Kaavion lataus epäonnistui:", error);
-        document.getElementById("chart-container").innerHTML =
-          `<p style='text-align:center; font-size:20px; color:red;'>Tietojen lataus epäonnistui: ${error.message}</p>`;
-      }
-    }
-
-    renderChart();
-  </script>
-</body>
-</html>
+          labels
