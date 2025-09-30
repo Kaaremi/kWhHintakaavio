@@ -52,22 +52,20 @@
         const values = [];
         const colors = [];
 
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
-        const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+        const today = new Date();
+        const todayDate = today.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
-        const tomorrowEntries = data.prices.filter(entry => {
+        const todayEntries = data.prices.filter(entry => {
           const entryDate = new Date(entry.startDate);
           const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-          return entryLocalDate === tomorrowDate;
+          return entryLocalDate === todayDate;
         }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
-        if (tomorrowEntries.length === 0) {
-          throw new Error("Huomisen hintadataa ei löytynyt.");
+        if (todayEntries.length === 0) {
+          throw new Error("Tämän päivän hintadataa ei löytynyt.");
         }
 
-        tomorrowEntries.forEach(entry => {
+        todayEntries.forEach(entry => {
           const entryDate = new Date(entry.startDate);
           const hour = entryDate.toLocaleTimeString("fi-FI", {
             hour: "2-digit",
