@@ -1,154 +1,36 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-  <meta charset="UTF-8">
-  <title>Sähkön pörssihinta snt/kWh</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      width: 100%;
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
-    }
-    #header {
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      padding: 20px 10px 10px;
-      color: #333;
-    }
-    #chart-container {
-      width: 100%;
-      height: calc(100% - 80px);
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    #priceChart {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-</head>
-<body>
-  <div id="header">Sähkön pörssihinta snt/kWh</div>
-  <div id="chart-container">
-    <canvas id="priceChart"></canvas>
+<div style="padding: 20px;">
+  <h2 style="text-align:center;">Chart Code</h2>
+
+  <!-- Top Copy Button -->
+  <div style="text-align:center; margin-bottom:10px;">
+    <button onclick="copyChartCode()">Copy Code</button>
   </div>
-  <script>
-    async function renderChart() {
-      try {
-        const proxyUrl = "https://thingproxy.freeboard.io/fetch/";
-        const apiUrl = "https://api.porssisahko.net/v1/latest-prices.json";
-        const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
-        if (!response.ok) throw new Error("Verkkovirhe: " + response.status);
-        const data = await response.json();
 
-        if (!data || !Array.isArray(data.prices)) {
-          throw new Error("Hintadataa ei löytynyt.");
-        }
+  <!-- Code Block -->
+  <pre style="background:#eee; padding:10px; overflow-x:auto;">
+    <code id="chartCode">
+// Paste your chart code here, for example:
+async function renderChart() {
+  const response = await fetch("https://porssisahko.net/api/v1/latest-prices.json");
+  const data = await response.json();
+  // ... rest of your chart logic ...
+}
+    </code>
+  </pre>
 
-        const labels = [];
-        const values = [];
-        const colors = [];
+  <!-- Bottom Copy Button -->
+  <div style="text-align:center; margin-top:10px;">
+    <button onclick="copyChartCode()">Copy Code Again</button>
+  </div>
+</div>
 
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
-        const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-
-        const tomorrowEntries = data.prices.filter(entry => {
-          const entryDate = new Date(entry.startDate);
-          const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-          return entryLocalDate === tomorrowDate;
-        }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
-
-        if (tomorrowEntries.length === 0) {
-          throw new Error("Huomisen hintadataa ei löytynyt.");
-        }
-
-        tomorrowEntries.forEach(entry => {
-          const entryDate = new Date(entry.startDate);
-          const hour = entryDate.toLocaleTimeString("fi-FI", {
-            hour: "2-digit",
-            hour12: false,
-            timeZone: "Europe/Helsinki"
-          });
-          const minutes = entryDate.toLocaleTimeString("fi-FI", {
-            minute: "2-digit",
-            hour12: false,
-            timeZone: "Europe/Helsinki"
-          });
-
-          labels.push("H " + hour + ":" + minutes);
-
-          const price = entry.price;
-          values.push(price.toFixed(2));
-
-          if (price < 5) {
-            colors.push("green");
-          } else if (price <= 10) {
-            colors.push("yellow");
-          } else {
-            colors.push("red");
-          }
-        });
-
-        const canvas = document.getElementById("priceChart");
-        const ctx = canvas.getContext("2d");
-
-        new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: labels,
-            datasets: [{
-              label: "",
-              data: values,
-              backgroundColor: colors
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  font: { size: 20 }
-                }
-              },
-              x: {
-                ticks: {
-                  font: { size: 20 },
-                  callback: function(value, index) {
-                    return index % 4 === 0 ? this.getLabelForValue(value).split(":")[0] : "";
-                  },
-                  color: function(context) {
-                    const index = context.index;
-                    const value = parseFloat(values[index]);
-                    return value >= 10 ? "red" : "#666";
-                  }
-                }
-              }
-            },
-            plugins: {
-              legend: {
-                display: false
-              }
-            }
-          }
-        });
-
-      } catch (error) {
-        console.error("Kaavion lataus epäonnistui:", error);
-        document.getElementById("chart-container").innerHTML =
-          `<p style='text-align:center; font-size:20px; color:red;'>Tietojen lataus epäonnistui: ${error.message}</p>`;
-      }
-    }
-
-    renderChart();
-  </script>
-</body>
-</html>
+<script>
+  function copyChartCode() {
+    const code = document.getElementById("chartCode").innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      alert("Koodi kopioitu leikepöydälle!");
+    }).catch(err => {
+      alert("Kopiointi epäonnistui: " + err);
+    });
+  }
+</script>
