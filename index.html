@@ -38,65 +38,61 @@
     <canvas id="priceChart"></canvas>
   </div>
   <script>
+    async function fetchEntsoePrices() {
+      const token = "5fa9ceca-b157-4e53-8586-df3153e58584";
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const yyyy = tomorrow.getUTCFullYear();
+      const mm = String(tomorrow.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(tomorrow.getUTCDate()).padStart(2, '0');
+
+      const periodStart = `${yyyy}${mm}${dd}0000`;
+      const periodEnd = `${yyyy}${mm}${dd}2300`;
+
+      const url = `https://transparency.entsoe.eu/api?securityToken=${token}&documentType=A44&in_Domain=10YFI-1--------U&out_Domain=10YFI-1--------U&periodStart=${periodStart}&periodEnd=${periodEnd}`;
+      const proxyUrl = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`;
+
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error("ENTSO-E API fetch failed");
+      const xmlText = await response.text();
+      return new window.DOMParser().parseFromString(xmlText, "text/xml");
+    }
+
+    function parsePrices(xml) {
+      const times = Array.from(xml.getElementsByTagName("timeInterval"));
+      const prices = Array.from(xml.getElementsByTagName("price.amount"));
+      const labels = [];
+      const values = [];
+      const colors = [];
+
+      times.forEach((timeNode, i) => {
+        const start = timeNode.getElementsByTagName("start")[0].textContent;
+        const date = new Date(start);
+        const hour = date.getHours().toString().padStart(2, '0');
+        const minute = date.getMinutes().toString().padStart(2, '0');
+        labels.push(`H ${hour}:${minute}`);
+
+        const price = parseFloat(prices[i].textContent);
+        values.push((price / 10).toFixed(2)); // Convert €/MWh to snt/kWh
+
+        if (price < 50) {
+          colors.push("green");
+        } else if (price <= 100) {
+          colors.push("yellow");
+        } else {
+          colors.push("red");
+        }
+      });
+
+      return { labels, values, colors };
+    }
+
     async function renderChart() {
       try {
-        const response = await fetch("https://api.allorigins.win/raw?url=https://api.porssisahko.net/v1/latest-prices.json");
-        if (!response.ok) throw new Error("Verkkovirhe: " + response.status);
-        const data = await response.json();
+        const xml = await fetchEntsoePrices();
+        const { labels, values, colors } = parsePrices(xml);
 
-        if (!data || !Array.isArray(data.prices)) {
-          throw new Error("Hintadataa ei löytynyt.");
-        }
-
-        const labels = [];
-        const values = [];
-        const colors = [];
-
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
-        const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-
-        const tomorrowEntries = data.prices.filter(entry => {
-          const entryDate = new Date(entry.startDate);
-          const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-          return entryLocalDate === tomorrowDate;
-        }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
-
-        if (tomorrowEntries.length === 0) {
-          throw new Error("Huomisen hintadataa ei löytynyt.");
-        }
-
-        tomorrowEntries.forEach(entry => {
-          const entryDate = new Date(entry.startDate);
-          const hour = entryDate.toLocaleTimeString("fi-FI", {
-            hour: "2-digit",
-            hour12: false,
-            timeZone: "Europe/Helsinki"
-          });
-          const minutes = entryDate.toLocaleTimeString("fi-FI", {
-            minute: "2-digit",
-            hour12: false,
-            timeZone: "Europe/Helsinki"
-          });
-
-          labels.push("H " + hour + ":" + minutes);
-
-          const price = entry.price;
-          values.push(price.toFixed(2));
-
-          if (price < 5) {
-            colors.push("green");
-          } else if (price <= 10) {
-            colors.push("yellow");
-          } else {
-            colors.push("red");
-          }
-        });
-
-        const canvas = document.getElementById("priceChart");
-        const ctx = canvas.getContext("2d");
-
+        const ctx = document.getElementById("priceChart").getContext("2d");
         new Chart(ctx, {
           type: "bar",
           data: {
@@ -138,7 +134,6 @@
             }
           }
         });
-
       } catch (error) {
         console.error("Kaavion lataus epäonnistui:", error);
         document.getElementById("chart-container").innerHTML =
