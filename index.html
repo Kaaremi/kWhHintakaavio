@@ -20,8 +20,8 @@
       box-sizing: border-box;
     }
     #priceChart {
-      width: 100% !important;
-      height: 100% !important;
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
@@ -80,13 +80,18 @@
           }
         });
 
-        const ctx = document.getElementById("priceChart").getContext("2d");
+        const canvas = document.getElementById("priceChart");
+        if (!canvas) throw new Error("Canvas element not found.");
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("Canvas context not available.");
+
         new Chart(ctx, {
           type: "bar",
           data: {
             labels: labels,
             datasets: [{
-              label: "", // Empty label to suppress legend
+              label: "", // No legend label
               data: values,
               backgroundColor: colors
             }]
@@ -98,7 +103,7 @@
               y: {
                 beginAtZero: true,
                 ticks: {
-                  font: { size: 20 } // doubled Y-axis text size
+                  font: { size: 20 } // doubled Y-axis font size
                 }
               },
               x: {
@@ -112,4 +117,22 @@
                 }
               }
             },
-            plugins
+            plugins: {
+              legend: {
+                display: false // Hide legend bar
+              }
+            }
+          }
+        });
+
+      } catch (error) {
+        console.error("Kaavion lataus epäonnistui:", error);
+        document.getElementById("chart-container").innerHTML =
+          "<p style='text-align:center; font-size:20px;'>Tietojen lataus epäonnistui. Yritä myöhemmin uudelleen.</p>";
+      }
+    }
+
+    renderChart();
+  </script>
+</body>
+</html>
