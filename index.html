@@ -86,7 +86,7 @@
           data: {
             labels: labels,
             datasets: [{
-              label: "Sähkön hinta (snt/kWh)",
+              label: "", // Empty label to suppress legend
               data: values,
               backgroundColor: colors
             }]
@@ -98,7 +98,7 @@
               y: {
                 beginAtZero: true,
                 ticks: {
-                  font: { size: 20 }
+                  font: { size: 20 } // doubled Y-axis text size
                 }
               },
               x: {
@@ -112,24 +112,4 @@
                 }
               }
             },
-            plugins: {
-              legend: {
-                display: true,
-                labels: {
-                  font: { size: 18 }
-                }
-              }
-            }
-          }
-        });
-
-      } catch (error) {
-        console.error("Kaavion lataus epäonnistui:", error);
-        document.getElementById("chart-container").innerHTML = "<p style='text-align:center; font-size:20px;'>Tietojen lataus epäonnistui. Yritä myöhemmin uudelleen.</p>";
-      }
-    }
-
-    renderChart();
-  </script>
-</body>
-</html>
+            plugins
