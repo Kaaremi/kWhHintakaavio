@@ -2,7 +2,7 @@
 <html lang="fi">
 <head>
   <meta charset="UTF-8">
-  <title>Sähkön hintakaavio</title>
+  <title>Sähkön pörssihinta snt/kWh</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     html, body {
@@ -33,7 +33,7 @@
   </style>
 </head>
 <body>
-  <div id="header">Sähkön hinta snt/kWh</div>
+  <div id="header">Sähkön pörssihinta snt/kWh</div>
   <div id="chart-container">
     <canvas id="priceChart"></canvas>
   </div>
@@ -57,23 +57,4 @@
         tomorrow.setDate(now.getDate() + 1);
         const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
-        const tomorrowEntries = data.prices.filter(entry => {
-          const entryDate = new Date(entry.startDate);
-          const entryLocalDate = entryDate.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
-          return entryLocalDate === tomorrowDate;
-        }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
-
-        tomorrowEntries.forEach(entry => {
-          const entryDate = new Date(entry.startDate);
-          const hour = entryDate.toLocaleTimeString("fi-FI", {
-            hour: "2-digit",
-            hour12: false,
-            timeZone: "Europe/Helsinki"
-          });
-          const minutes = entryDate.toLocaleTimeString("fi-FI", {
-            minute: "2-digit",
-            hour12: false,
-            timeZone: "Europe/Helsinki"
-          });
-
-          labels
+        const tomorrowEntries = data.prices.filter
