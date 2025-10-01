@@ -18,14 +18,14 @@
       margin-top: 20px;
       color: #007700;
     }
-    #error {
-      color: red;
-      margin-top: 20px;
-    }
     #timestamp {
       font-size: 0.9em;
       color: #555;
       margin-top: 10px;
+    }
+    #error {
+      color: red;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -37,21 +37,19 @@
 
   <script>
     const priceElement = document.getElementById('price');
-    const errorElement = document.getElementById('error');
     const timestampElement = document.getElementById('timestamp');
+    const errorElement = document.getElementById('error');
 
     async function fetchElectricityPrice() {
-      const url = 'https://api.porssisahko.net/v1/latest';
+      const url = 'https://api.porssisahko.net/v1/price/current';
 
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
-
-        // Expected structure: { price: { value: 6.45, start_time: "2025-10-01T11:30:00Z" } }
-        const price = data?.price?.value;
-        const time = data?.price?.start_time;
+        const price = data?.value;
+        const time = data?.start_time;
 
         if (typeof price === 'number' && time) {
           priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
@@ -64,7 +62,7 @@
           throw new Error('Virheellinen tietorakenne');
         }
       } catch (err) {
-        console.error('Fetch failed:', err);
+        console.error('Virhe haettaessa hintaa:', err);
         priceElement.textContent = 'Tietojen lataus epäonnistui';
         errorElement.textContent = `Virhe: ${err.message}`;
       }
