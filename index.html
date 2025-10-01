@@ -40,27 +40,37 @@
     const timestampElement = document.getElementById('timestamp');
     const errorElement = document.getElementById('error');
 
-    async function fetchElectricityPrice() {
-      const url = 'https://api.porssisahko.net/v1/price/current';
+    async function fetchLatestPrice() {
+      const url = 'https://api.porssisahko.net/v1/price';
 
       try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
-        const price = data?.value;
-        const time = data?.start_time;
 
-        if (typeof price === 'number' && time) {
-          priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
-          const localTime = new Date(time).toLocaleTimeString('fi-FI', {
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-          timestampElement.textContent = `Voimassa alkaen: ${localTime}`;
-        } else {
-          throw new Error('Virheellinen tietorakenne');
+        if (!Array.isArray(data) || data.length === 0) {
+          throw new Error('Tyhjä hintadata');
         }
+
+        const now = new Date();
+        const currentPrice = data.find(entry => {
+          const start = new Date(entry.start_time);
+          const end = new Date(entry.end_time);
+          return start <= now && now < end;
+        });
+
+        if (!currentPrice || typeof currentPrice.value !== 'number') {
+          throw new Error('Hintatietoa ei löytynyt');
+        }
+
+        priceElement.textContent = `${currentPrice.value.toFixed(2)} snt/kWh`;
+
+        const localTime = new Date(currentPrice.start_time).toLocaleTimeString('fi-FI', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        timestampElement.textContent = `Voimassa alkaen: ${localTime}`;
       } catch (err) {
         console.error('Virhe haettaessa hintaa:', err);
         priceElement.textContent = 'Tietojen lataus epäonnistui';
@@ -68,7 +78,7 @@
       }
     }
 
-    fetchElectricityPrice();
+    fetchLatestPrice();
   </script>
 </body>
 </html>
