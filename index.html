@@ -28,39 +28,27 @@
     const priceElement = document.getElementById('price');
     const errorElement = document.getElementById('error');
 
-    const apiEndpoints = [
-      'https://api.porssisahko.net/v1/latest', // Fingrid proxy (CORS-enabled)
-      'https://api.spot-hinta.fi/v1/price',    // Spot-hinta.fi (if available)
-      'https://api.nordpoolgroup.com/v1/spot'  // Nord Pool (requires proxy)
-    ];
+    async function fetchPrice() {
+      try {
+        const response = await fetch('https://api.porssisahko.net/v1/latest');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    async function fetchPriceFromSources() {
-      for (const url of apiEndpoints) {
-        try {
-          const response = await fetch(url);
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const price = data?.price?.value;
 
-          const data = await response.json();
-
-          // Adjust this based on actual API structure
-          const price = data?.price ?? data?.value ?? data?.data?.[0]?.price;
-          if (typeof price === 'number') {
-            priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
-            return;
-          } else {
-            throw new Error('Invalid data format');
-          }
-        } catch (err) {
-          console.warn(`Virhe haettaessa ${url}:`, err);
+        if (typeof price === 'number') {
+          priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
+        } else {
+          throw new Error('Virheellinen tietorakenne');
         }
+      } catch (err) {
+        console.error('Virhe haettaessa hintaa:', err);
+        priceElement.textContent = 'Tietojen lataus epäonnistui';
+        errorElement.textContent = `Virhe: ${err.message}`;
       }
-
-      // If all fail
-      priceElement.textContent = 'Tietojen lataus epäonnistui';
-      errorElement.textContent = 'Virhe: Kaikki palvelut epäonnistuivat';
     }
 
-    fetchPriceFromSources();
+    fetchPrice();
   </script>
 </body>
 </html>
