@@ -41,7 +41,7 @@
     async function renderChart() {
       try {
         const proxy = "https://api.allorigins.win/get?url=";
-        const target = "https://porssisahko.net/api/v1/latest-prices.json";
+        const target = "https://porssisahko.net/api/v1/latest-prices";
         const response = await fetch(proxy + encodeURIComponent(target));
         if (!response.ok) throw new Error("Verkkovirhe: " + response.status);
         const wrapper = await response.json();
