@@ -22,43 +22,51 @@
       color: red;
       margin-top: 20px;
     }
+    #timestamp {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <h1>Sähkön pörssihinta snt/kWh</h1>
   <div id="price">Ladataan hintatietoja...</div>
+  <div id="timestamp"></div>
   <div id="error"></div>
 
   <script>
     const priceElement = document.getElementById('price');
     const errorElement = document.getElementById('error');
+    const timestampElement = document.getElementById('timestamp');
 
     async function fetchElectricityPrice() {
-      // ✅ Correct relative path (works on GitHub Pages project page)
-      const url = './data/prices.json';  
+      const url = 'https://api.porssisahko.net/v1/latest';
 
       try {
-        console.log("Fetching:", url);
         const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
-        console.log("Data:", data);
 
-        // Assume JSON looks like: { "current_price": 6.45 }
-        if (data.current_price !== undefined) {
-          priceElement.textContent = data.current_price + " snt/kWh";
+        // Expected structure: { price: { value: 6.45, start_time: "2025-10-01T11:30:00Z" } }
+        const price = data?.price?.value;
+        const time = data?.price?.start_time;
+
+        if (typeof price === 'number' && time) {
+          priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
+          const localTime = new Date(time).toLocaleTimeString('fi-FI', {
+            hour: '2-digit',
+            minute: '2-digit',
+          });
+          timestampElement.textContent = `Voimassa alkaen: ${localTime}`;
         } else {
-          throw new Error("JSON ei sisällä current_price-kenttää");
+          throw new Error('Virheellinen tietorakenne');
         }
-
       } catch (err) {
-        console.error("Fetch failed:", err);
-        priceElement.textContent = "Tietojen lataus epäonnistui";
-        errorElement.textContent = err.message;
+        console.error('Fetch failed:', err);
+        priceElement.textContent = 'Tietojen lataus epäonnistui';
+        errorElement.textContent = `Virhe: ${err.message}`;
       }
     }
 
