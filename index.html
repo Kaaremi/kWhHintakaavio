@@ -8,10 +8,15 @@
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      color: #333;
     }
     #price {
       font-size: 2em;
       margin-top: 20px;
+      color: #007700;
     }
     #error {
       color: red;
@@ -28,27 +33,4 @@
     const priceElement = document.getElementById('price');
     const errorElement = document.getElementById('error');
 
-    async function fetchPrice() {
-      try {
-        const response = await fetch('https://api.porssisahko.net/v1/latest');
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const data = await response.json();
-        const price = data?.price?.value;
-
-        if (typeof price === 'number') {
-          priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
-        } else {
-          throw new Error('Virheellinen tietorakenne');
-        }
-      } catch (err) {
-        console.error('Virhe haettaessa hintaa:', err);
-        priceElement.textContent = 'Tietojen lataus epäonnistui';
-        errorElement.textContent = `Virhe: ${err.message}`;
-      }
-    }
-
-    fetchPrice();
-  </script>
-</body>
-</html>
+    async function fetchElectricityPrice() {
