@@ -29,12 +29,12 @@
     const errorElement = document.getElementById('error');
 
     const apiEndpoints = [
-      'https://api.example.com/electricity-price', // Replace with actual primary API
-      'https://api.backup1.com/price',
-      'https://api.backup2.com/spot-price'
+      'https://api.porssisahko.net/v1/latest', // Fingrid proxy (CORS-enabled)
+      'https://api.spot-hinta.fi/v1/price',    // Spot-hinta.fi (if available)
+      'https://api.nordpoolgroup.com/v1/spot'  // Nord Pool (requires proxy)
     ];
 
-    async function tryFetchFromSources() {
+    async function fetchPriceFromSources() {
       for (const url of apiEndpoints) {
         try {
           const response = await fetch(url);
@@ -43,15 +43,15 @@
           const data = await response.json();
 
           // Adjust this based on actual API structure
-          const price = data?.price ?? data?.spotPrice ?? data?.value;
+          const price = data?.price ?? data?.value ?? data?.data?.[0]?.price;
           if (typeof price === 'number') {
             priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
-            return; // Success, exit loop
+            return;
           } else {
             throw new Error('Invalid data format');
           }
         } catch (err) {
-          console.warn(`Failed to fetch from ${url}:`, err);
+          console.warn(`Virhe haettaessa ${url}:`, err);
         }
       }
 
@@ -60,7 +60,7 @@
       errorElement.textContent = 'Virhe: Kaikki palvelut epäonnistuivat';
     }
 
-    tryFetchFromSources();
+    fetchPriceFromSources();
   </script>
 </body>
 </html>
