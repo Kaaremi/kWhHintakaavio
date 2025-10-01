@@ -40,11 +40,12 @@
   <script>
     async function renderChart() {
       try {
-        const proxy = "https://api.allorigins.win/raw?url=";
+        const proxy = "https://api.allorigins.win/get?url=";
         const target = "https://porssisahko.net/api/v1/latest-prices.json";
         const response = await fetch(proxy + encodeURIComponent(target));
         if (!response.ok) throw new Error("Verkkovirhe: " + response.status);
-        const data = await response.json();
+        const wrapper = await response.json();
+        const data = JSON.parse(wrapper.contents);
 
         if (!data || !Array.isArray(data.prices)) {
           throw new Error("Hintadataa ei löytynyt.");
@@ -54,9 +55,8 @@
         const values = [];
         const colors = [];
 
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
 
         const tomorrowEntries = data.prices.filter(entry => {
