@@ -1,84 +1,30 @@
-<!DOCTYPE html>
-<html lang="fi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sähkön pörssihinta snt/kWh</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f9f9f9;
-    }
-    h1 {
-      color: #333;
-    }
-    #price {
-      font-size: 2em;
-      margin-top: 20px;
-      color: #007700;
-    }
-    #timestamp {
-      font-size: 0.9em;
-      color: #555;
-      margin-top: 10px;
-    }
-    #error {
-      color: red;
-      margin-top: 20px;
-    }
-  </style>
-</head>
-<body>
-  <h1>Sähkön pörssihinta snt/kWh</h1>
-  <div id="price">Ladataan hintatietoja...</div>
-  <div id="timestamp"></div>
-  <div id="error"></div>
+const colors = [];
 
-  <script>
-    const priceElement = document.getElementById('price');
-    const timestampElement = document.getElementById('timestamp');
-    const errorElement = document.getElementById('error');
-
-    async function fetchLatestPrice() {
-      const proxyUrl = 'https://papaya-lokum-8e2c5e.netlify.app/.netlify/functions/proxy';
-
-      try {
-        const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const data = await response.json();
-
-        if (!Array.isArray(data) || data.length === 0) {
-          throw new Error('Tyhjä hintadata');
-        }
-
-        const now = new Date();
-        const currentPrice = data.find(entry => {
-          const start = new Date(entry.start_time);
-          const end = new Date(entry.end_time);
-          return start <= now && now < end;
+const now = new Date();
+        const todayDate = now.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+        const currentHour = now.toLocaleTimeString("fi-FI", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "Europe/Helsinki"
         });
 
-        if (!currentPrice || typeof currentPrice.value !== 'number') {
-          throw new Error('Hintatietoa ei löytynyt');
-        }
-
-        priceElement.textContent = `${currentPrice.value.toFixed(2)} snt/kWh`;
-
-        const localTime = new Date(currentPrice.start_time).toLocaleTimeString('fi-FI', {
-          hour: '2-digit',
-          minute: '2-digit',
-        });
-        timestampElement.textContent = `Voimassa alkaen: ${localTime}`;
-      } catch (err) {
-        console.error('Virhe haettaessa hintaa:', err);
-        priceElement.textContent = 'Tietojen lataus epäonnistui';
-        errorElement.textContent = `Virhe: ${err.message}`;
-      }
-    }
-
-    fetchLatestPrice();
-  </script>
-</body>
-</html>
+        const todayDate = now.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+const tomorrow = new Date(now);
+tomorrow.setDate(now.getDate() + 1);
+const tomorrowDate = tomorrow.toLocaleDateString("fi-FI", { timeZone: "Europe/Helsinki" });
+@@ -107,7 +113,13 @@
+},
+x: {
+title: { display: false },
+                ticks: { font: { size: 10 } }
+                ticks: {
+                  font: { size: 10 },
+                  color: function(context) {
+                    const label = context.tick.label;
+                    return label.includes("Tänään " + currentHour) ? "red" : "#666";
+                  }
+                }
+}
+},
+plugins: {
