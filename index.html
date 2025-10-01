@@ -25,32 +25,42 @@
   <div id="error"></div>
 
   <script>
-    async function fetchElectricityPrice() {
-      const priceElement = document.getElementById('price');
-      const errorElement = document.getElementById('error');
+    const priceElement = document.getElementById('price');
+    const errorElement = document.getElementById('error');
 
-      try {
-        const response = await fetch('https://api.example.com/electricity-price'); // Replace with actual API
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    const apiEndpoints = [
+      'https://api.example.com/electricity-price', // Replace with actual primary API
+      'https://api.backup1.com/price',
+      'https://api.backup2.com/spot-price'
+    ];
+
+    async function tryFetchFromSources() {
+      for (const url of apiEndpoints) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const data = await response.json();
+
+          // Adjust this based on actual API structure
+          const price = data?.price ?? data?.spotPrice ?? data?.value;
+          if (typeof price === 'number') {
+            priceElement.textContent = `${price.toFixed(2)} snt/kWh`;
+            return; // Success, exit loop
+          } else {
+            throw new Error('Invalid data format');
+          }
+        } catch (err) {
+          console.warn(`Failed to fetch from ${url}:`, err);
         }
-
-        const data = await response.json();
-
-        // Assuming the API returns { price: 12.34 }
-        if (data && typeof data.price === 'number') {
-          priceElement.textContent = `${data.price.toFixed(2)} snt/kWh`;
-        } else {
-          throw new Error('Invalid data format');
-        }
-      } catch (error) {
-        console.error('Fetch error:', error);
-        priceElement.textContent = 'Tietojen lataus epäonnistui';
-        errorElement.textContent = `Virhe: ${error.message}`;
       }
+
+      // If all fail
+      priceElement.textContent = 'Tietojen lataus epäonnistui';
+      errorElement.textContent = 'Virhe: Kaikki palvelut epäonnistuivat';
     }
 
-    fetchElectricityPrice();
+    tryFetchFromSources();
   </script>
 </body>
 </html>
