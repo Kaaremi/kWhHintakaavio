@@ -41,8 +41,7 @@
     const errorElement = document.getElementById('error');
 
     async function fetchLatestPrice() {
-      const targetUrl = encodeURIComponent('https://api.porssisahko.net/v1/price');
-      const proxyUrl = `https://api.allorigins.win/raw?url=${targetUrl}`;
+      const proxyUrl = 'https://your-site-name.netlify.app/.netlify/functions/proxy'; // Replace with your actual Netlify URL
 
       try {
         const response = await fetch(proxyUrl);
