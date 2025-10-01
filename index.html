@@ -41,7 +41,7 @@
     const errorElement = document.getElementById('error');
 
     async function fetchLatestPrice() {
-      const proxyUrl = 'https://your-site-name.netlify.app/.netlify/functions/proxy'; // Replace with your actual Netlify URL
+      const proxyUrl = 'https://your-site-name.netlify.app/.netlify/functions/proxy'; // ← Replace with your actual Netlify URL
 
       try {
         const response = await fetch(proxyUrl);
@@ -67,18 +67,3 @@
         priceElement.textContent = `${currentPrice.value.toFixed(2)} snt/kWh`;
 
         const localTime = new Date(currentPrice.start_time).toLocaleTimeString('fi-FI', {
-          hour: '2-digit',
-          minute: '2-digit',
-        });
-        timestampElement.textContent = `Voimassa alkaen: ${localTime}`;
-      } catch (err) {
-        console.error('Virhe haettaessa hintaa:', err);
-        priceElement.textContent = 'Tietojen lataus epäonnistui';
-        errorElement.textContent = `Virhe: ${err.message}`;
-      }
-    }
-
-    fetchLatestPrice();
-  </script>
-</body>
-</html>
